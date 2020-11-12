@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import Modal from "../Modal/Modal";
 import axios from "axios";
 import "./ProductDetails.css";
 
 function ProductDetails() {
 	const [shopList, setshopList] = useState([]);
+	const [modalIsOpen, setModalIsOpen] = useState(false);
 
 	// https://www.westelm.com/services/catalog/v4/category/shop/new/all-new/index.json
 	useEffect(() => {
@@ -12,45 +14,60 @@ function ProductDetails() {
 				`https://www.westelm.com/services/catalog/v4/category/shop/new/all-new/index.json`
 			)
 			.then((res) => {
-				console.log(res.data.groups);
+				// console.log(res.data.groups);
 				setshopList(res.data.groups);
-				debugger;
 			})
 			.catch((err) => console.log(err));
 	}, []);
 
+	// function displayOverlay(e) {
+	// 	e.preventDefault();
+	// 	console.log("overlay");
+	// }
+
 	//details, including price, product name and the main hero image
 	return (
-		<div className='productDetailsContainer'>
-			{shopList &&
-				shopList.map((data) => {
-					return (
-						<div className='product-title'>
-							<div className='productName' key={data.id}>
-								{" "}
-								{data.name}{" "}
-							</div>
-
-							<div className='product-price-high'>
-								<div key={data.id}>
+		<>
+			<Modal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)}>
+				<div>Im an imported Modal </div>
+			</Modal>
+			<h2 className='catalog-heading'> Our Product Catalog</h2>
+			<div className='productCatalogContainer'>
+				{shopList &&
+					shopList.map((data) => {
+						return (
+							<div className='product-container'>
+								<div className='productName' key={data.id}>
 									{" "}
-									${" "}
-									{!!data.price
-										? data.price.selling
-										: data.priceRange.selling.high}
+									{data.name}{" "}
+								</div>
+
+								<div className='product-price-high'>
+									<div key={data.id}>
+										{" "}
+										${" "}
+										{!!data.price
+											? data.price.selling
+											: data.priceRange.selling.high}
+									</div>
+								</div>
+
+								<div className='product-hero-image'>
+									<img
+										src={data.hero.href}
+										alt={data.hero.alt}
+										key={data.id}
+										onClick={() => setModalIsOpen(true)}
+									/>
+								</div>
+								<div className='product-reviews'>
+									<div> Customer Reviews - {data.reviews.averageRating} </div>
 								</div>
 							</div>
-
-							<div className='product-hero-image'>
-								<img src={data.hero.href} alt={data.hero.alt} key={data.id} />
-							</div>
-							<div className='product-reviews'>
-								<div> Customer Reviews - {data.reviews.averageRating} </div>
-							</div>
-						</div>
-					);
-				})}
-		</div>
+						);
+					})}
+			</div>
+		</>
 	);
 }
 
